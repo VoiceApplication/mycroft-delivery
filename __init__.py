@@ -29,12 +29,10 @@ class LoadProject(MycroftSkill):
         it cannot utilise MycroftSkill methods as the class does not yet exist.
         """
         super().__init__()
-        self.learning = True
-        self.url='https://opentdb.com/api.php?amount=1&category=27&difficulty=easy&type=boolean'
-        self.question=None
-        self.answer=''
-        self.score=0
-        self.retry=0
+        self.url_get='http://42.60.37.128:5000/iss/delivery/address/5/761512'
+        self.url_resolve_address='https://developers.onemap.sg/commonapi/search?searchVal=761512&returnGeom=N&getAddrDetails=Y'
+        self.current_postcode=761512
+        self.remain_package=0
 
     def initialize(self):
         """ Perform any final setup needed for the skill here.
@@ -45,38 +43,22 @@ class LoadProject(MycroftSkill):
 
     @intent_handler(IntentBuilder('askIntent').require('ask'))
     def handle_ask_intent(self, message):
-        r=requests.get(self.url)
+        r=requests.get(self.url_get)
         if r.status_code==200:
-            data=json.loads(r.text)
-            self.log.info(data)
-            self.question=data['results'][0]['question']
-            self.answer=data['results'][0]['correct_answer'].lower().strip()
-            self.speak_dialog(self.question)
-            self.retry=0
-            #self.speak_dialog(self.answer)
+            myadd=[int(s) for s in r.text.split() if s.isdigit()]
+            self.current_postcode=myadd[1]
+            self.remain_package=myadd[0]
+            r1=requests.get(self.url_resolve_address)
+            if r1.status_code==200:
+                data=json.loads(r1.text)
+                self.log.info('Vehicle 5. Your next delivery point is '+myadd[1]+' '+data['results'][0]['SEARCHVAL'])
         else:
-            self.speak_dialog('Please try again')
+            self.speak_dialog('Sorry, you have no package to deliver')
 
-    @intent_handler(IntentBuilder('ansIntent').require('ans'))
+    @intent_handler(IntentBuilder('checkIntent').require('check'))
     def handle_ans_intent(self, message):
-        ans=message.data.get('utterance')
-        if self.answer==ans:
-            self.speak_dialog('You are good')
-            if self.retry==0:
-                self.score=self.score+1
-        else:
-            self.speak_dialog('Sorry try again')
-        self.retry=self.retry+1
+        self.speak_dialog('You have '+remain_package+' package to deliver')
 
-    @intent_handler(IntentBuilder('scoreIntent').require('score'))
-    def handle_score_intent(self, message):
-        self.speak_dialog('Your score is '+str(self.score))
-
-    @intent_handler(IntentBuilder('resetIntent').require('reset'))
-    def handle_reset_intent(self, message):
-        self.score=0
-        self.retry=0
-        self.speak_dialog('Your score is reset.')
 
     def stop(self):
         pass
