@@ -51,13 +51,13 @@ class DeliveryProject(MycroftSkill):
             myadd=[int(s) for s in r.text.split() if s.isdigit()]
             self.current_postcode=myadd[1]
             self.remain_package=myadd[0]
-            r1=requests.get(self.url_resolve_address+str(myadd[1])+'&returnGeom=N&getAddrDetails=Y')
-            if r1.status_code==200:
-                data=json.loads(r1.text)
-                self.current_location=data['results'][0]['SEARCHVAL']
-                self.speak_dialog('Vehicle 5. Your next delivery point is '+str(myadd[1])+' '+data['results'][0]['SEARCHVAL'])
-                self.log.info('Vehicle 5. Your next delivery point is '+str(myadd[1])+' '+data['results'][0]['SEARCHVAL'])
-                self.url_next='http://42.60.37.128:5000/iss/delivery/address/5/'+str(myadd[1])
+            #r1=requests.get(self.url_resolve_address+str(myadd[1])+'&returnGeom=N&getAddrDetails=Y')
+            #if r1.status_code==200:
+            #    data=json.loads(r1.text)
+            #    self.current_location=data['results'][0]['SEARCHVAL']
+            self.speak_dialog('Vehicle 5. Your next delivery point is '+str(myadd[1]))
+            #self.log.info('Vehicle 5. Your next delivery point is '+str(myadd[1])
+            self.url_next='http://42.60.37.128:5000/iss/delivery/address/5/'+str(myadd[1])
         else:
             self.speak_dialog('Sorry, you have no package to deliver')
 
@@ -70,13 +70,13 @@ class DeliveryProject(MycroftSkill):
             if len(myadd)!=0:
                 self.current_postcode=myadd[1]
                 self.remain_package=myadd[0]
-                r1=requests.get(self.url_resolve_address+str(myadd[1])+'&returnGeom=N&getAddrDetails=Y')
-                if r1.status_code==200:
-                    data=json.loads(r1.text)
-                    self.current_location=data['results'][0]['SEARCHVAL']
-                    self.speak_dialog('Vehicle 5. Your next delivery point is '+str(myadd[1])+' '+data['results'][0]['SEARCHVAL'])
-                    self.log.info('Vehicle 5. Your next delivery point is '+str(myadd[1])+' '+data['results'][0]['SEARCHVAL'])
-                    self.url_next='http://42.60.37.128:5000/iss/delivery/address/5/'+str(myadd[1])
+                #r1=requests.get(self.url_resolve_address+str(myadd[1])+'&returnGeom=N&getAddrDetails=Y')
+                #if r1.status_code==200:
+                #    data=json.loads(r1.text)
+                #    self.current_location=data['results'][0]['SEARCHVAL']
+                self.speak_dialog('Vehicle 5. Your next delivery point is '+str(myadd[1]))
+                #self.log.info('Vehicle 5. Your next delivery point is '+str(myadd[1])
+                self.url_next='http://42.60.37.128:5000/iss/delivery/address/5/'+str(myadd[1])
             else:
                 self.speak_dialog('You complete the delivery')
         else:
@@ -84,7 +84,7 @@ class DeliveryProject(MycroftSkill):
 
     @intent_handler(IntentBuilder('checkIntent').require('check'))
     def handle_check_intent(self, message):
-        self.speak_dialog('You have '+str(self.remain_package)+' package to deliver, current at '+self.current_location)
+        self.speak_dialog('You have '+str(self.remain_package)+' package to deliver, current at '+str(self.current_postcode))
 
 
     def stop(self):
